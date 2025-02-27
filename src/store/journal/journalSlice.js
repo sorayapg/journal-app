@@ -7,9 +7,9 @@ export const journalSlice = createSlice({
         messageSaved: '',
         notes: [],
         active: null,
-            active: {
-                imagenesUrls: [],    
-            }
+        //    active: {
+        //         imagenesUrls: [],    
+        //     } 
 
     },
     reducers: {
@@ -50,12 +50,16 @@ export const journalSlice = createSlice({
            state.messageSaved = `${action.payload.title }, actualizada correctamente`;
         },
 
-        setPhotosToActiveNote: ( state, action) => {
-            state.active.imagenesUrls = [ 
-                ...(state.active.imagenesUrls || []),
-                ...action.payload
-            ];
+        setPhotosToActiveNote: (state, action) => {
+            state.active.imageUrls = [ ...state.active.imageUrls, ...action.payload ]; 
             state.isSaving = false;
+        },
+
+        clearNotesLogout:(state) => {
+            state.isSaving = false;
+            state.messageSaved = '';
+            state.notes = [];
+            state.active = null;
         },
 
         deleteNoteById : (state, action) => {
@@ -68,11 +72,12 @@ export const journalSlice = createSlice({
 // Action creators are generated for each case reducer function
 export const { 
     addNewEmptyNote,
+    clearNotesLogout,
     deleteNoteById,
     savingNewNote,  
     setActiveNote,
-    setPhotosToActiveNote,
     setNotes,
+    setPhotosToActiveNote,
     setSaving,
     updateNote,
 
