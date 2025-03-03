@@ -6,7 +6,11 @@ export const journalSlice = createSlice({
         isSaving: false,
         messageSaved: '',
         notes: [],
-        active: null,
+        //active: null,
+        active: {
+            imageUrls: [], // Inicializa como array vacío
+          },
+        //active: null,
         //    active: {
         //         imagenesUrls: [],    
         //     } 
@@ -63,7 +67,8 @@ export const journalSlice = createSlice({
         },
 
         deleteNoteById : (state, action) => {
-
+            state.active = null;
+            state.notes = state.notes.filter( note => note.id !== action.payload );
         }
     }
 });
