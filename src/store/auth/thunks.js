@@ -33,6 +33,7 @@ export const startCreatingUserWithEmailPassword = ({ email, password, displayNam
         dispatch( checkingCredentials() );
 
         const result = await registerUserWithEmailPassword({ email, password, displayName });
+        //console.log({ result })
         if (!result.ok) return dispatch(logout({ errorMessage: result.errorMessage }));
 
         dispatch( login( result ))
