@@ -1,6 +1,9 @@
 
-import { checkingCredentials } from '../../../src/store/auth/thunks';
+import { singInWithGoogle } from '../../../src/firebase/providers';
+import { login, logout } from '../../../src/store/auth';
+import { checkingCredentials, startGoogleSignIn } from '../../../src/store/auth/thunks';
 import { checkingAuthentication } from '../../../src/store/auth/thunks';
+import { demoUser } from '../../fixtures/authFixtures';
 
 jest.mock('../../../src/firebase/providers');
 
@@ -15,6 +18,30 @@ describe('Pruebas en AuthThunks', () => {
        //expect( dispatch ).toHaveBeenCalledWith(checkingCredentials());
        expect( dispatch ).toHaveBeenCalledWith({"payload": undefined, "type": "auth/checkingCredentials"});
         
+    });
+
+    test('startGoogleSignIn debe de llamar checkingCredentials y login - Exito', async() => {
+        
+        const loginData = {ok: true, ...demoUser }
+        await singInWithGoogle.mockResolvedValue(loginData);
+
+        await startGoogleSignIn()( dispatch );
+
+        expect( dispatch ).toHaveBeenCalledWith({ type: 'auth/checkingCredentials' } );
+        expect( dispatch ).toHaveBeenCalledWith( login( loginData ));
+    });
+
+    test('startGoogleSignIn debe de llamar checkingCredentials y logout - Error', async() => {
+        
+        const loginData = {ok: false, errorMessage:'Un error en Google' }
+        await singInWithGoogle.mockResolvedValue(loginData);
+
+
+
+        await startGoogleSignIn()( dispatch );
+
+        expect( dispatch ).toHaveBeenCalledWith({ type: 'auth/checkingCredentials' } );
+        expect( dispatch ).toHaveBeenCalledWith( logout( loginData.errorMessage ));
     });
     
 });
