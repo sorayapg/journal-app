@@ -1,4 +1,4 @@
-import { getEnvironments } from("./src/helpers/getEnvironments");
+
 
 
 module.exports = require("whatwg-fetch");
