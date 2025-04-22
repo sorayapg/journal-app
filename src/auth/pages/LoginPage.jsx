@@ -39,6 +39,7 @@ export const LoginPage = () => {
 
   return (
     <AuthLayout title="Login">
+      {/* <h1>hola mundo {import.meta.env.VITE_HOLA} </h1> */}
       <form onSubmit={ onSubmit } className='animate__animated animate__fadeIn animate__faster'>
           <Grid container>
             <Grid item xs={ 12 } sx={{ mt: 2 }}>
