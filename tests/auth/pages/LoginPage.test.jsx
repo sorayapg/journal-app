@@ -1,23 +1,50 @@
-import { render } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import { configureStore } from '@reduxjs/toolkit';
 import { MemoryRouter } from 'react-router-dom';
 
 import { LoginPage } from '../../../src/auth/pages/LoginPage';
 import { authSlice } from '../../../src/store/auth';
+import { startGoogleSignIn } from '../../../src/store/auth/thunks';
+import { notAuthenticatedState } from '../../fixtures/authFixtures';
+
+// Finalizacion de test en el proyecto journal-app
+
+const mockStartGoogleSignIn = jest.fn();
+const mockStartLoginWithEmailPassword = jest.fn();
+
+
+
+
+jest.mock('../../../src/store/auth/thunks', () => ( {
+    startGoogleSignIn: () => ( mockStartGoogleSignIn ),
+    startLoginWithEmailPassword : ({ email, password }) => {
+        return () => mockStartLoginWithEmailPassword({ email, password });
+    },
+
+}));
+
+jest.mock('react-redux', () => ({
+    ...jest.requireActual('react-redux'),
+    useDispatch: () => (fn) => fn(),
+}));
 
 const store = configureStore({
     reducer: {
         auth: authSlice.reducer
     },
-    // preloadedState: {
+    preloadedState: {
+        auth: notAuthenticatedState
 
-    // }
+    },
     
 })
 
 
 describe('Pruebas en <LoginPage />', () => {
+
+    beforeEach(() => jest.clearAllMocks() );
+
 
     test('debe de mostrar (rederizar) el componente correctamente', () => {
 
@@ -27,8 +54,66 @@ describe('Pruebas en <LoginPage />', () => {
                     <LoginPage />
                 </MemoryRouter>
             </Provider>
-        )
+        );
+
+        //screen.debug();
+
+        expect(screen.getAllByText('Login').length ).toBeGreaterThanOrEqual(1);
 
     });
+
+    test('debe de llamar el startGoogleSignIn del el boton de google', () => {
+
+        render(
+            <Provider store={ store } >
+                <MemoryRouter>
+                    <LoginPage />
+                </MemoryRouter>
+            </Provider>
+        );
+
+        const googleBtn = screen.getByLabelText('google-btn');
+        //console.log(googleBtn);
+        fireEvent.click( googleBtn);
+        expect( mockStartGoogleSignIn ).toHaveBeenCalled();
+
+
+    });
+
+
+    test('submit debe de llamar startLoginWithEmailPassword', () => {
+
+        const email = 'soraya@google.com';
+        const password = '123456';
+
+        render(
+            <Provider store={ store } >
+                <MemoryRouter>
+                    <LoginPage />
+                </MemoryRouter>
+            </Provider>
+        );
+
+        const emailField = screen.getByRole('textbox', { name: 'Correo'});
+        //console.log(emailField);
+        //fireEvent.change( emailField, { target: { name: email, value: email} });
+        fireEvent.change(emailField, { target: { name: 'email', value: email } });
+
+        const passwordField = screen.getByTestId('password');
+        //fireEvent.change( passwordField, { target: { name: password, value: password} });
+        fireEvent.change(passwordField, { target: { name: 'password', value: password } });
+
+        const loginForm = screen.getByLabelText('submit-form');
+        fireEvent.submit( loginForm );
+
+        expect ( mockStartLoginWithEmailPassword ).toHaveBeenCalledWith( {
+            email,
+            password,
+        
+        });
+        
+
+    });
+
     
-})
+});
